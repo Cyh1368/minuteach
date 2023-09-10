@@ -7,6 +7,7 @@ After inviting the bot, here are some commands you can use:
 Here are commands that everyone can use:
 - mt!help: Display help page
 - mt!leaderboard: Show leaderboard
+- mt!spam [value] [message]: repeats the [message] [value] times, where [value]<=100
 
 Here are commands for administrators only:
 - mt!addpoints @user [value]: Add points to someone
