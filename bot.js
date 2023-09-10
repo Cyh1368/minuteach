@@ -2,6 +2,7 @@ const Discord = require('discord.js');
 const { Client, GatewayIntentBits } = require('discord.js');
 const cron = require('node-cron');
 permission_ok_roles = ["MOD", "總管理員", "管理員"]
+require('dotenv').config();
 
 const client = new Client({
   intents: [
@@ -43,7 +44,7 @@ function formatCommands(commandArray) {
 
 // Replace 'YOUR_TOKEN' with your bot's token
 // R2N2AFBSumJreD4M6OgPm-EVnAoNxegb
-const token = 'MTE1MDAyNjc0MjY1NjkyOTgwMg.GUNaZT.ZS1R55hdrxldPSGDCNvKMXASaWnzhVlRxsYusI';
+const token = process.env['BOT_TOKEN'];
 
 const points = {}; // Object to store user points
 var messageLog = "";
@@ -75,6 +76,38 @@ ${formatCommands(modCommands)}
 `;
 
     message.channel.send(`> **幫助訊息**:${helpMessage}`);
+  }
+
+  if (message.content.startsWith('mt!spam')) {
+    // Split the command arguments
+    const args = message.content.slice(8).trim().split(/ +/);
+    const value = parseInt(args[0]);
+    const text = args.slice(1).join(' ');
+
+    // Check if the value is greater than 100
+    if (value > 100) {
+      message.channel.send(`**${message.member.user.username}** 洗版次數必須小於 100。`);
+      return;
+    }
+
+    if (/@[^\s]+/.test(text)) {
+      message.channel.send(`**${message.member.user.username}** 不可以使用 mention 洗版。`);
+      return;
+    }
+
+    // Find the "洗版" channel by name
+    const spamChannel = message.guild.channels.cache.find((channel) => channel.name === '洗版');
+
+    // Check if the spamChannel exists
+    if (!spamChannel) {
+      message.channel.send('找不到名稱為 "洗版" 的頻道。');
+      return;
+    }
+
+    // Send the message multiple times
+    for (let i = 0; i < value; i++) {
+      spamChannel.send(text);
+    }
   }
 
   if (message.content.startsWith('mt!addpoints')) {
