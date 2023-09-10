@@ -83,32 +83,42 @@ ${formatCommands(modCommands)}
     const args = message.content.slice(8).trim().split(/ +/);
     const value = parseInt(args[0]);
     const text = args.slice(1).join(' ');
-
+  
     // Check if the value is greater than 100
     if (value > 100) {
       message.channel.send(`**${message.member.user.username}** 洗版次數必須小於 100。`);
       return;
     }
-
+  
     if (/@[^\s]+/.test(text)) {
       message.channel.send(`**${message.member.user.username}** 不可以使用 mention 洗版。`);
       return;
     }
+  
+    // Check if the message contains "mt!"
+    const regexPattern = /(?:mt!|t!|\/|!)\[.*\]|![^\s]+/;
 
+    // Check if the text matches the regex pattern
+    if (regexPattern.test(text)) {
+      message.channel.send(`**${message.member.user.username}** 不能使用指令或特殊格式洗版。`);
+      return;
+    }
+  
     // Find the "洗版" channel by name
     const spamChannel = message.guild.channels.cache.find((channel) => channel.name === '洗版');
-
+  
     // Check if the spamChannel exists
     if (!spamChannel) {
       message.channel.send('找不到名稱為 "洗版" 的頻道。');
       return;
     }
-
+  
     // Send the message multiple times
     for (let i = 0; i < value; i++) {
       spamChannel.send(text);
     }
   }
+  
 
   if (message.content.startsWith('mt!addpoints')) {
     messageLog += `[${new Date().toLocaleString()}] ${message.author.username} ran command: ${message.content}\n`;
