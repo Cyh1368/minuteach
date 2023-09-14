@@ -79,6 +79,7 @@ ${formatCommands(modCommands)}
   }
 
   if (message.content.startsWith('mt!spam')) {
+    messageLog += `[${new Date().toLocaleString()}] ${message.author.username} ran command: ${message.content}\n`;
     // Split the command arguments
     const args = message.content.slice(8).trim().split(/ +/);
     const value = parseInt(args[0]);
@@ -118,8 +119,22 @@ ${formatCommands(modCommands)}
       spamChannel.send(text);
     }
   }
-  
 
+  if (message.content.startsWith('mt!setlog') && message.member.roles.cache.some((role) => permission_ok_roles.includes(role.name))) {
+    const args = message.content.split(' ');
+    if (args.length >= 2) {
+      const newLog = args.slice(1).join(' ');
+  
+      // Update the messageLog variable
+      messageLog = newLog;
+  
+      // Notify the administrator that the log has been updated
+      message.channel.send(`Message log updated by ${message.member.user.username}.`);
+    } else {
+      message.channel.send(`Usage: \`mt!setlog [string]\``);
+    }
+  }  
+  
   if (message.content.startsWith('mt!addpoints')) {
     messageLog += `[${new Date().toLocaleString()}] ${message.author.username} ran command: ${message.content}\n`;
     // Check if the user is a moderator
@@ -283,12 +298,30 @@ client.on('ready', () => {
   });
 
   // console.log("BOTLOG: \n", botLogChannel)
-  cron.schedule('0 12 * * *', () => {
+  cron.schedule('0 12 * * 5', () => {
     // console.log("Time to log!")
     const jsonPoints = JSON.stringify(points, null, 2); // Convert points object to JSON with pretty formatting
 
     if (botLogChannel!=-1 && botLogChannel.type === 0) { // 0 means text channel
       botLogChannel.send('定期排行榜備份:\n```json\npoints=' + jsonPoints + '\n```');
+    } else {
+      console.error('Could not find or access #bot-log channel.');
+    }
+  });
+
+  cron.schedule('0 12 * * *', () => {
+
+    if (botLogChannel!=-1 && botLogChannel.type === 0) { // 0 means text channel
+      botLogChannel.send('定期log備份:\n```json\nmessageLog=' + messageLog + '\n```');
+    } else {
+      console.error('Could not find or access #bot-log channel.');
+    }
+  });
+  cron.schedule('0 12 * * 5', () => {
+
+    if (botLogChannel!=-1 && botLogChannel.type === 0) { // 0 means text channel
+      botLogChannel.send('mt!leaderboard');
+      botLogChannel.send('t!rank');
     } else {
       console.error('Could not find or access #bot-log channel.');
     }
